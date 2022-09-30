@@ -6,7 +6,7 @@ import (
 
 var ()
 
-func createMatrix(rows, cols int) [][]int {
+func create(rows, cols int) [][]int {
 	matrix := make([][]int, rows)
 	for i := range matrix {
 		matrix[i] = make([]int, cols)
@@ -14,7 +14,7 @@ func createMatrix(rows, cols int) [][]int {
 	return matrix
 }
 
-func printMatrix(matrix [][]int) {
+func print(matrix [][]int) {
 	for _, row := range matrix {
 		for _, col := range row {
 			fmt.Printf("%d ", col)
@@ -29,7 +29,7 @@ func addRow(matrix [][]int, row []int) [][]int {
 	return matrix
 }
 
-func findHighestInEachColumn(matrix [][]int) []int {
+func columnMaxMask(matrix [][]int) []int {
 	var result []int
 	for i := 0; i < len(matrix[0]); i++ {
 		var highest int
