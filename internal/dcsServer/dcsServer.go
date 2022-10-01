@@ -8,16 +8,34 @@ import (
 
 	"google.golang.org/grpc"
 
+	"github.com/DCS-gRPC/go-bindings/dcs/v0/atmosphere"
+	"github.com/DCS-gRPC/go-bindings/dcs/v0/coalition"
 	"github.com/DCS-gRPC/go-bindings/dcs/v0/controller"
+	"github.com/DCS-gRPC/go-bindings/dcs/v0/custom"
+	"github.com/DCS-gRPC/go-bindings/dcs/v0/group"
+	"github.com/DCS-gRPC/go-bindings/dcs/v0/hook"
 	"github.com/DCS-gRPC/go-bindings/dcs/v0/mission"
 	"github.com/DCS-gRPC/go-bindings/dcs/v0/net"
+	"github.com/DCS-gRPC/go-bindings/dcs/v0/timer"
+	"github.com/DCS-gRPC/go-bindings/dcs/v0/trigger"
+	"github.com/DCS-gRPC/go-bindings/dcs/v0/unit"
+	"github.com/DCS-gRPC/go-bindings/dcs/v0/world"
 )
 
 type bindings struct {
 	conn       *grpc.ClientConn
+	atmosphere atmosphere.AtmosphereServiceClient
+	coalition  coalition.CoalitionServiceClient
+	controller controller.ControllerServiceClient
+	custom     custom.CustomServiceClient
+	group      group.GroupServiceClient
+	hook       hook.HookServiceClient
 	mission    mission.MissionServiceClient
 	net        net.NetServiceClient
-	controller controller.ControllerServiceClient
+	timer      timer.TimerServiceClient
+	trigger    trigger.TriggerServiceClient
+	unit       unit.UnitServiceClient
+	world      world.WorldServiceClient
 }
 
 func NewBindings(addr string, port int) *bindings {
@@ -26,9 +44,18 @@ func NewBindings(addr string, port int) *bindings {
 
 	return &bindings{
 		conn:       conn,
+		atmosphere: atmosphere.NewAtmosphereServiceClient(conn),
+		coalition:  coalition.NewCoalitionServiceClient(conn),
+		controller: controller.NewControllerServiceClient(conn),
+		custom:     custom.NewCustomServiceClient(conn),
+		group:      group.NewGroupServiceClient(conn),
+		hook:       hook.NewHookServiceClient(conn),
 		mission:    mission.NewMissionServiceClient(conn),
 		net:        net.NewNetServiceClient(conn),
-		controller: controller.NewControllerServiceClient(conn),
+		timer:      timer.NewTimerServiceClient(conn),
+		trigger:    trigger.NewTriggerServiceClient(conn),
+		unit:       unit.NewUnitServiceClient(conn),
+		world:      world.NewWorldServiceClient(conn),
 	}
 }
 
