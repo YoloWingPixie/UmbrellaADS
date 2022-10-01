@@ -1,15 +1,32 @@
 package main
 
-import "fmt"
+import (
+	"io/ioutil"
+	"log"
+
+	"umbrella/internal/dcsServer"
+
+	"gopkg.in/yaml.v3"
+)
 
 func main() {
-	sam := matrix.create(0, 3)
-	sam = matrix.addRow(matrix, []int{14, 2, 34})
-	sam = matrix.addRow(matrix, []int{4, 54, 6})
-	sam = matrix.addRow(matrix, []int{7, 8, 9})
-	matrix.print(sam)
 
-	fmt.Println()
+	// Read the config file
+	configFile, err := ioutil.ReadFile("config.yaml")
+	if err != nil {
+		log.Panicf("Failed to read config file: %v", err)
+	}
+	config := make(map[interface{}]interface{})
 
-	fmt.Println(findHighestInEachColumn(sam))
+	err2 := yaml.Unmarshal(configFile, &config)
+
+	if err2 != nil {
+		log.Fatal(err2)
+	}
+
+	//Create new bindings
+	bindings := dcsServer.NewBindings(config["address"].(string), config["port"].(int))
+
+	//Send a chat message
+	dcsServer.SendChat(*bindings, "Umbrella ADS is running")
 }
