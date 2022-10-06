@@ -1,21 +1,36 @@
 # Core Features
 
-- All configuration should follow top down inheritance. Configuration should first contain a global default that creates a functional IADS > User set IADS settings > User set command center settings > User set SAM site settings
-
-- Ability to drop onto a DCS server and create IADS on all missions without the need for Lua to explicitly enable it.
-
-- Ability to swap between configurations
-
-- Ability to find and setup SAM and EWR sites by either name tagging or descriptor tagging
-
-- Ability to defend against HARMs
-
-- Ability to sort and prioritize threats by their vector, not just their presence in a threat ring.
-
-- Ability to dispatch interceptors 
-
-- Ability to estimate the need to dispatch interceptors if the IADs is not well suited for the threat
-
-- Ability to generate logical power and communication networks use abstracts and static objects to find best paths of connection.
-
-- Ability to manually define power and communication connections as desired by the mission maker
+`All configuration should follow top down inheritance.`
+- [ ] Configuration
+    - [ ] Global Default Configuration
+    - [ ] User Definable IADS-wide Settings
+    - [ ] User Definable Command Center Settings
+    - [ ] User Definable SAM site settings
+    - [ ] User Definable settings filtered by SAM name or Descriptor
+- [ ] Server Autostart Mode
+- [ ] Mission Drop-in Mode
+- [ ] Support Multiple Configurations
+- [ ] Unit Discovery
+    - [ ] Discover units by Name Prefix
+    - [ ] Discover units by Descriptor
+    - [ ] Discover power and communication infrastructure by static object type
+- [ ] HARM and JSOW Defense
+    - [ ] SAM sites assignable as point defense
+    - [ ] Point Defense changes priorities based on state of ward
+    - [ ] Ward changes priorities based on state of point defense
+    - [ ] HARM track prediction to determine which SAM site is in danger
+- [ ] Target Detection and Prioritization
+    - [ ] Prioritize by vector
+- [ ] Interceptor Dispatcher
+    - [ ] Support for a JEZ
+    - [ ] Config options to prioritize use of fighter or use of SAMs
+- [ ] Ability to evaluate health state of IADS
+    - [ ] Dispatch Interceptor if IADS does not believe it can counter them
+- [ ] Power Grid Simulation 
+    - [ ] Ability to automatically generate power grids based on logical graphs
+    - [ ] Ability to detect suitable backup generators for SAM sites
+    - [ ] Disable SAMs if power is removed
+- [ ] Communication Network Simulation
+    - [ ] Ability to automatically generate communication and command structures based on logical grpahs
+    - [ ] Ability to manually overide autogen and manually define some connections
+    - [ ] Support for optionally enforcing channel and range limits
