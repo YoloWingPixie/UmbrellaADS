@@ -22,7 +22,7 @@ import (
 	"github.com/DCS-gRPC/go-bindings/dcs/v0/world"
 )
 
-type bindings struct {
+type Bindings struct {
 	conn       *grpc.ClientConn
 	atmosphere atmosphere.AtmosphereServiceClient
 	coalition  coalition.CoalitionServiceClient
@@ -38,11 +38,11 @@ type bindings struct {
 	world      world.WorldServiceClient
 }
 
-func NewBindings(addr string, port int) *bindings {
+func NewBindings(addr string, port int) *Bindings {
 
 	conn, _ := connect(addr, port)
 
-	return &bindings{
+	return &Bindings{
 		conn:       conn,
 		atmosphere: atmosphere.NewAtmosphereServiceClient(conn),
 		coalition:  coalition.NewCoalitionServiceClient(conn),
@@ -76,7 +76,7 @@ func connect(addr string, port int) (*grpc.ClientConn, error) {
 }
 
 // function to send a chat message to the DCS server
-func SendChat(bindings bindings, message string) {
+func SendChat(bindings Bindings, message string) {
 	bindings.net.SendChat(context.Background(), &net.SendChatRequest{
 		Message: message,
 	})

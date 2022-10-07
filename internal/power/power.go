@@ -1,5 +1,9 @@
 package power
 
+import (
+	"umbrella/internal/dcsServer"
+)
+
 type Grid struct {
 	Name          string
 	PowerStations []PowerStation
@@ -51,4 +55,8 @@ func NewPowerStation(Name string) *PowerStation {
 func NewSubStation(Name string) *SubStation {
 
 	return &SubStation{}
+}
+
+func Run(bindings *dcsServer.Bindings) {
+
 }

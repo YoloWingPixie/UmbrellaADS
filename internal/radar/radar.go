@@ -1,5 +1,9 @@
 package radar
 
+import (
+	"umbrella/internal/dcsServer"
+)
+
 type RadarUnit struct {
 }
 
@@ -39,5 +43,9 @@ func NewTrackRadar() *TrackRadar {
 }
 
 func GetRadarCapabilities() {
-	return
+
+}
+
+func Run(bindings *dcsServer.Bindings) {
+
 }

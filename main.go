@@ -5,9 +5,22 @@ import (
 	"log"
 
 	"umbrella/internal/dcsServer"
+	"umbrella/internal/network"
+	"umbrella/internal/power"
+	"umbrella/internal/radar"
 
 	"gopkg.in/yaml.v3"
 )
+
+var (
+	exit        = make(chan bool)
+	TargetQueue = make(chan struct{}) // Queue for target processor
+	UpdateQueue = make(chan struct{}) // Queue to notify compontents of unit updates
+)
+
+func exitProgram() {
+	exit <- true
+}
 
 func main() {
 
@@ -29,4 +42,15 @@ func main() {
 
 	//Send a chat message
 	dcsServer.SendChat(*bindings, "Umbrella ADS is running")
+
+	//Setup caches
+
+	//Start routines
+
+	go network.Run(bindings)
+	go power.Run(bindings)
+	go radar.Run(bindings)
+
+	exitProgram()
+	<-exit
 }
