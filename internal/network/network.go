@@ -1,7 +1,6 @@
 package network
 
 import (
-	"umbrella/internal/dcsServer"
 	"umbrella/internal/power"
 	"umbrella/internal/radar"
 )
@@ -37,6 +36,6 @@ type CommandUnit struct {
 	ConnectedSubStation power.SubStation
 }
 
-func Run(bindings *dcsServer.Bindings) {
+func Run() {
 
 }

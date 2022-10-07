@@ -1,2 +1,5 @@
-address: localhost
-port: 50051
+host:
+  address: localhost
+  port: 50051
+iads:
+  coalition: red

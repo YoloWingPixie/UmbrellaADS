@@ -4,9 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	network "net"
+	"strconv"
 	"time"
 
 	"google.golang.org/grpc"
+
+	"umbrella/internal/channels"
+	"umbrella/internal/config"
 
 	"github.com/DCS-gRPC/go-bindings/dcs/v0/atmosphere"
 	"github.com/DCS-gRPC/go-bindings/dcs/v0/coalition"
@@ -23,6 +28,7 @@ import (
 )
 
 type Bindings struct {
+	ready      bool
 	conn       *grpc.ClientConn
 	atmosphere atmosphere.AtmosphereServiceClient
 	coalition  coalition.CoalitionServiceClient
@@ -43,6 +49,7 @@ func NewBindings(addr string, port int) *Bindings {
 	conn, _ := connect(addr, port)
 
 	return &Bindings{
+		ready:      true,
 		conn:       conn,
 		atmosphere: atmosphere.NewAtmosphereServiceClient(conn),
 		coalition:  coalition.NewCoalitionServiceClient(conn),
@@ -75,9 +82,91 @@ func connect(addr string, port int) (*grpc.ClientConn, error) {
 	return conn, err
 }
 
+func portCheck(port int) bool {
+	var isRunning bool = false
+	_, err := network.Listen("tcp", ":"+strconv.FormatInt(int64(port), 10))
+	if err == nil {
+		isRunning = true
+	}
+	return isRunning
+}
+
+/*
+	Watcher runs at main execution and checks to see if gRPC port is listening.
+
+When server is tected, Watcher will spawn the Client exactly once.
+*/
+func ServerWatcher() {
+	var isRunning bool = false
+	var isClient bool = false
+
+	//Check the Client state
+
+	for {
+		isRunning = portCheck(config.Settings.Host.Port)
+		// Check to see if DCS is running
+		if isRunning {
+			go Client()
+			time.Sleep(1 * time.Second)
+
+			select {
+			case msg := <-channels.ClientState:
+				if msg == "Client Running" {
+					isClient = true
+				}
+				if msg == "Client Stopped" {
+					isClient = false
+				}
+			default:
+			}
+		}
+
+		if isRunning && !isClient {
+			go Client()
+		}
+
+		if !isRunning && isClient {
+			channels.ClientStop <- true
+		}
+		time.Sleep(1 * time.Second)
+	}
+}
+
+func Client() {
+	var Binding Bindings
+	channels.ClientState <- "Client Running"
+
+	for {
+		// Check for request to stop.
+		select {
+		case <-channels.ClientStop:
+			channels.ClientState <- "Client Stopped"
+			return
+		default:
+		}
+
+		// Create binding if it does not exist.
+		if !Binding.ready {
+			Binding := NewBindings(config.Settings.Host.Address, config.Settings.Host.Port)
+			var message string = fmt.Sprintf("%v Client has started", config.Settings.Iads.Name)
+			SendChat(*Binding, message)
+		}
+
+		//Process Client Call Queue
+		select {
+		case request := <-channels.ClientCallQueue:
+			println(request)
+			//TODO Handle Request
+		}
+
+		time.Sleep(1 * time.Microsecond)
+	}
+
+}
+
 // function to send a chat message to the DCS server
-func SendChat(bindings Bindings, message string) {
-	bindings.net.SendChat(context.Background(), &net.SendChatRequest{
+func SendChat(Bindings Bindings, message string) {
+	Bindings.net.SendChat(context.Background(), &net.SendChatRequest{
 		Message: message,
 	})
 }
