@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	"umbrella/internal/channels"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -29,14 +31,14 @@ type Umbrella struct {
 }
 
 type RefreshRate struct {
-	Network        time.Duration `yaml:"network"`
-	Power          time.Duration `yaml:"power"`
-	Radar          time.Duration `yaml:"radar"`
-	Iads           time.Duration `yaml:"iads"`
-	Config         time.Duration `yaml:"config"`
-	Client         time.Duration `yaml:"client"`
-	DcsWatcher     time.Duration `yaml:"dcsWatcher"`
-	MissionWatcher time.Duration `yaml:"missionWatcher"`
+	Network        int `yaml:"network"`
+	Power          int `yaml:"power"`
+	Radar          int `yaml:"radar"`
+	Iads           int `yaml:"iads"`
+	Config         int `yaml:"config"`
+	Client         int `yaml:"client"`
+	DcsWatcher     int `yaml:"dcsWatcher"`
+	MissionWatcher int `yaml:"missionWatcher"`
 }
 
 var (
@@ -45,6 +47,8 @@ var (
 )
 
 func init() {
+	channels.Logs <- "Loading config file: " + configFile
+
 	// Read the config file
 	configFile, err := os.Open(configFile)
 	if err != nil {
@@ -59,11 +63,12 @@ func init() {
 		log.Fatal(err2)
 	}
 
+	channels.Logs <- "Config file loaded."
 }
 
 func Watcher() {
 	for {
 
-		time.Sleep(Settings.Umbrella.Refreshrate.Config * time.Millisecond)
+		time.Sleep(time.Duration(Settings.Umbrella.Refreshrate.Config) * time.Millisecond)
 	}
 }

@@ -106,36 +106,46 @@ func Watcher() {
 		if isRunning {
 			if isRunning != watchdog.IsDCSRunning {
 				channels.DCSState <- isRunning
+
+				channels.Logs <- "DCS-gRPC Server has been detected."
+
 			}
 		}
 
 		//Check the Client state
-		if !watchdog.IsClientRunning {
+		if isRunning && !watchdog.IsClientRunning {
+			channels.Logs <- "Attempting to start Client."
 			go Client()
 		}
 
 		if !isRunning && watchdog.IsClientRunning {
+			channels.Logs <- "DCS-gRPC Server has been lost. Stopping Client."
 			channels.ClientStop <- true
 		}
-		time.Sleep(config.Settings.Umbrella.Refreshrate.DcsWatcher * time.Millisecond)
+		time.Sleep(time.Duration(config.Settings.Umbrella.Refreshrate.DcsWatcher) * time.Millisecond)
 	}
 }
 
 func Client() {
 	var Binding Bindings
+	Binding.ready = false
 	channels.ClientState <- true
+
+	channels.Logs <- "Client has been started."
 
 	for {
 		// Check for request to stop.
 		select {
 		case <-channels.ClientStop:
 			channels.ClientState <- false
+			channels.Logs <- "Client has been stopped."
 			return
 		default:
 		}
 
 		// Create binding if it does not exist.
 		if !Binding.ready {
+			channels.Logs <- "Creating new bindings to DCS-gRPC Server."
 			Binding := NewBindings(config.Settings.Host.Address, config.Settings.Host.Port)
 			var message string = fmt.Sprintf("%v Client has started", config.Settings.Iads.Name)
 			SendChat(*Binding, message)
@@ -143,7 +153,7 @@ func Client() {
 
 		//Process Client Call Queue
 
-		time.Sleep(config.Settings.Umbrella.Refreshrate.Client * time.Millisecond)
+		time.Sleep(time.Duration(config.Settings.Umbrella.Refreshrate.Client) * time.Millisecond)
 	}
 
 }

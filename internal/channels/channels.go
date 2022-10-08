@@ -1,10 +1,5 @@
 package channels
 
-type Message struct {
-	Message string
-	ID      uint32
-}
-
 var (
 	ProcessStop     = make(chan bool, 8)        // Channel to instruct main to exit
 	ClientStop      = make(chan bool, 8)        // Channe lt instruct dcsServer.Client to exit
@@ -12,7 +7,7 @@ var (
 	ClientState     = make(chan bool, 8)        // Queue for dcsServer.Client to report state
 	Target          = make(chan struct{}, 1024) // Queue for target processor
 	Update          = make(chan struct{}, 1024) // Queue to notify compontents of unit updates
-	Notification    = make(chan Message, 1024)
+	Logs            = make(chan string, 8)
 	IADSState       = make(chan bool, 8)
 	IADSStop        = make(chan bool, 8)
 	PowerState      = make(chan bool, 8)

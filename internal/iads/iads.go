@@ -22,16 +22,18 @@ func NewIads(name string) *IADS {
 
 func Run() {
 	channels.IADSState <- true
+	channels.Logs <- "IADS thread started."
 
 	for {
 		//check for stop signal
 		select {
 		case <-channels.IADSStop:
 			channels.IADSState <- false
+			channels.Logs <- "IADS thread stopped."
 			return
 		default:
 		}
 
-		time.Sleep(config.Settings.Umbrella.Refreshrate.Iads * time.Millisecond)
+		time.Sleep(time.Duration(config.Settings.Umbrella.Refreshrate.Iads) * time.Millisecond)
 	}
 }

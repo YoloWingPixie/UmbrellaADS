@@ -60,7 +60,7 @@ func Run() {
 		default:
 		}
 
-		time.Sleep(config.Settings.Umbrella.Refreshrate.Radar * time.Millisecond)
+		time.Sleep(time.Duration(config.Settings.Umbrella.Refreshrate.Radar) * time.Millisecond)
 	}
 
 }
