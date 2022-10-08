@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"umbrella/internal/channels"
+	"umbrella/internal/config"
 )
 
 type Grid struct {
@@ -70,6 +71,6 @@ func Run() {
 		default:
 		}
 
-		time.Sleep(5 * time.Millisecond)
+		time.Sleep(config.Settings.Umbrella.Refreshrate.Power * time.Millisecond)
 	}
 }

@@ -1,7 +1,10 @@
 package network
 
 import (
+	"time"
+
 	"umbrella/internal/channels"
+	"umbrella/internal/config"
 	"umbrella/internal/power"
 	"umbrella/internal/radar"
 )
@@ -47,6 +50,7 @@ func Run() {
 			return
 		default:
 		}
-	}
 
+		time.Sleep(config.Settings.Umbrella.Refreshrate.Network * time.Millisecond)
+	}
 }

@@ -117,7 +117,7 @@ func Watcher() {
 		if !isRunning && watchdog.IsClientRunning {
 			channels.ClientStop <- true
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(config.Settings.Umbrella.Refreshrate.DcsWatcher * time.Millisecond)
 	}
 }
 
@@ -142,13 +142,8 @@ func Client() {
 		}
 
 		//Process Client Call Queue
-		select {
-		case request := <-channels.ClientCallQueue:
-			println(request)
-			//TODO Handle Request
-		}
 
-		time.Sleep(1 * time.Microsecond)
+		time.Sleep(config.Settings.Umbrella.Refreshrate.Client * time.Millisecond)
 	}
 
 }
@@ -273,5 +268,6 @@ func GetStaticObjects(Bindings Bindings) *coalition.GetStaticObjectsResponse {
 	if err != nil {
 		log.Fatalf("Could not get static objects: %v", err)
 	}
+
 	return staticObjects
 }

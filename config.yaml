@@ -3,3 +3,13 @@ host:
   port: 50051
 iads:
   coalition: red
+umbrella:
+  refreshrate:
+    power: 30
+    iads: 5
+    network: 30
+    radar: 30
+    config: 10000
+    client: 5
+    dcsWatcher: 100
+    missionWatcher: 100

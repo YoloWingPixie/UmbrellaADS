@@ -9,8 +9,9 @@ import (
 )
 
 type Config struct {
-	Host Host `yaml:"host"`
-	Iads Iads `yaml:"iads"`
+	Host     Host     `yaml:"host"`
+	Iads     Iads     `yaml:"iads"`
+	Umbrella Umbrella `yaml:"umbrella"`
 }
 
 type Host struct {
@@ -19,8 +20,23 @@ type Host struct {
 }
 
 type Iads struct {
-	Name      string
-	Coalition string
+	Name      string `yaml:"name"`
+	Coalition string `yaml:"coalition"`
+}
+
+type Umbrella struct {
+	Refreshrate RefreshRate `yaml:"refreshrate"`
+}
+
+type RefreshRate struct {
+	Network        time.Duration `yaml:"network"`
+	Power          time.Duration `yaml:"power"`
+	Radar          time.Duration `yaml:"radar"`
+	Iads           time.Duration `yaml:"iads"`
+	Config         time.Duration `yaml:"config"`
+	Client         time.Duration `yaml:"client"`
+	DcsWatcher     time.Duration `yaml:"dcsWatcher"`
+	MissionWatcher time.Duration `yaml:"missionWatcher"`
 }
 
 var (
@@ -48,6 +64,6 @@ func init() {
 func Watcher() {
 	for {
 
-		time.Sleep(5 * time.Second)
+		time.Sleep(Settings.Umbrella.Refreshrate.Config * time.Millisecond)
 	}
 }

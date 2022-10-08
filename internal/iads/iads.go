@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"umbrella/internal/channels"
+	"umbrella/internal/config"
 	"umbrella/internal/network"
 )
 
@@ -31,6 +32,6 @@ func Run() {
 		default:
 		}
 
-		time.Sleep(5 * time.Millisecond)
+		time.Sleep(config.Settings.Umbrella.Refreshrate.Iads * time.Millisecond)
 	}
 }
