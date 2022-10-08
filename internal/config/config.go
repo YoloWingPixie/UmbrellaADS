@@ -67,7 +67,27 @@ func init() {
 }
 
 func Watcher() {
+	var NewSettings Config
 	for {
+		//Read the config file
+		configFile, err := os.Open(configFile)
+		if err != nil {
+			log.Panicf("Failed to read config file: %v", err)
+		}
+		defer configFile.Close()
+
+		decoder := yaml.NewDecoder(configFile)
+		err2 := decoder.Decode(&NewSettings)
+
+		if err2 != nil {
+			log.Fatal(err2)
+		}
+
+		//Check if the config file has changed
+		if NewSettings != Settings {
+			Settings = NewSettings
+			channels.Logs <- "Config file changed."
+		}
 
 		time.Sleep(time.Duration(Settings.Umbrella.Refreshrate.Config) * time.Millisecond)
 	}

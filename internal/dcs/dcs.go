@@ -85,7 +85,7 @@ func connect(addr string, port int) (*grpc.ClientConn, error) {
 
 func portCheck(port int) bool {
 	var isRunning bool = false
-	_, err := network.Listen("tcp", ":"+strconv.FormatInt(int64(port), 10))
+	_, err := network.DialTimeout("tcp", ":"+strconv.FormatInt(int64(port), 10), 1)
 	if err == nil {
 		isRunning = true
 	}

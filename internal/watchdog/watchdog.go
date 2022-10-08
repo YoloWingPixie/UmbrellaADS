@@ -1,6 +1,7 @@
 package watchdog
 
 import (
+	"strconv"
 	"time"
 	"umbrella/internal/channels"
 )
@@ -18,6 +19,7 @@ var (
 )
 
 func Run() {
+	var i int = 0
 	channels.Logs <- "Watchdog thread started."
 	for {
 		// Check if DCS state changed
@@ -122,6 +124,13 @@ func Run() {
 		default:
 		}
 
+		// If the time is exactly at the start of a minute, log the current state
+		if i >= 2200 {
+			channels.Logs <- "Watchdog: Current state: DCS=" + strconv.FormatBool(IsDCSRunning) + ", Mission=" + strconv.FormatBool(IsMissionRunning) + ", Client=" + strconv.FormatBool(IsClientRunning) + ", IADS=" + strconv.FormatBool(IsIADSRunning) + ", Power=" + strconv.FormatBool(IsPowerRunning) + ", Radar=" + strconv.FormatBool(IsTargetRunning) + ", Network=" + strconv.FormatBool(IsNetworkRunning) + ", Config=" + strconv.FormatBool(IsConfigRunning)
+			i = 0
+		}
+
+		i++
 		time.Sleep(1 * time.Millisecond)
 	}
 }
