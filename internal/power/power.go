@@ -1,5 +1,11 @@
 package power
 
+import (
+	"time"
+
+	"umbrella/internal/channels"
+)
+
 type Grid struct {
 	Name          string
 	PowerStations []PowerStation
@@ -54,5 +60,16 @@ func NewSubStation(Name string) *SubStation {
 }
 
 func Run() {
+	channels.PowerState <- true
+	for {
+		//check for stop signal
+		select {
+		case <-channels.PowerStop:
+			channels.PowerState <- false
+			return
+		default:
+		}
 
+		time.Sleep(5 * time.Millisecond)
+	}
 }

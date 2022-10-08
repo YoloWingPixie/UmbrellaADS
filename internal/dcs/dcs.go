@@ -1,4 +1,4 @@
-package dcsServer
+package dcs
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 
 	"umbrella/internal/channels"
 	"umbrella/internal/config"
+	"umbrella/internal/watchdog"
 
 	"github.com/DCS-gRPC/go-bindings/dcs/v0/atmosphere"
 	"github.com/DCS-gRPC/go-bindings/dcs/v0/coalition"
@@ -96,36 +97,24 @@ func portCheck(port int) bool {
 
 When server is tected, Watcher will spawn the Client exactly once.
 */
-func ServerWatcher() {
+func Watcher() {
 	var isRunning bool = false
-	var isClient bool = false
-
-	//Check the Client state
 
 	for {
-		isRunning = portCheck(config.Settings.Host.Port)
-		// Check to see if DCS is running
-		if isRunning {
-			go Client()
-			time.Sleep(1 * time.Second)
 
-			select {
-			case msg := <-channels.ClientState:
-				if msg == "Client Running" {
-					isClient = true
-				}
-				if msg == "Client Stopped" {
-					isClient = false
-				}
-			default:
+		isRunning = portCheck(config.Settings.Host.Port)
+		if isRunning {
+			if isRunning != watchdog.IsDCSRunning {
+				channels.DCSState <- isRunning
 			}
 		}
 
-		if isRunning && !isClient {
+		//Check the Client state
+		if !watchdog.IsClientRunning {
 			go Client()
 		}
 
-		if !isRunning && isClient {
+		if !isRunning && watchdog.IsClientRunning {
 			channels.ClientStop <- true
 		}
 		time.Sleep(1 * time.Second)
@@ -134,13 +123,13 @@ func ServerWatcher() {
 
 func Client() {
 	var Binding Bindings
-	channels.ClientState <- "Client Running"
+	channels.ClientState <- true
 
 	for {
 		// Check for request to stop.
 		select {
 		case <-channels.ClientStop:
-			channels.ClientState <- "Client Stopped"
+			channels.ClientState <- false
 			return
 		default:
 		}
@@ -164,9 +153,125 @@ func Client() {
 
 }
 
+func MissionState() {
+	// Get the mission state from the DCS Server
+
+	// Compare existing state to new state
+
+	// If state has changed, IADS, Radar, Network, Power need to be stopped.
+
+	// If state has changed, caches need to be cleared.
+
+}
+
+// *************
+// gRPC Messages
+// *************
+
+//TODO, waiting on go-bindings to be updated:
+// GetSessionId
+// getDetectedTargets
+// setAlarmState
+// addStaticObject
+
 // function to send a chat message to the DCS server
 func SendChat(Bindings Bindings, message string) {
 	Bindings.net.SendChat(context.Background(), &net.SendChatRequest{
 		Message: message,
 	})
+}
+
+func GetUnit(Bindings Bindings, unitName string) *unit.GetResponse {
+	unit, err := Bindings.unit.Get(context.Background(), &unit.GetRequest{
+		Name: unitName,
+	})
+	if err != nil {
+		log.Fatalf("Could not get unit: %v", err)
+	}
+	return unit
+}
+
+func GetRadar(Bindings Bindings, unitName string) *unit.GetRadarResponse {
+	radar, err := Bindings.unit.GetRadar(context.Background(), &unit.GetRadarRequest{
+		Name: unitName,
+	})
+	if err != nil {
+		log.Fatalf("Could not get radar: %v", err)
+	}
+	return radar
+}
+
+func SetEmmission(Bindings Bindings, unitName string, emitting bool) {
+	_, err := Bindings.unit.SetEmission(context.Background(), &unit.SetEmissionRequest{
+		Name:     unitName,
+		Emitting: emitting,
+	})
+	if err != nil {
+		log.Fatalf("Could not set emission: %v", err)
+	}
+}
+
+func GetDescriptor(Bindings Bindings, unitName string) *unit.GetDescriptorResponse {
+	descriptor, err := Bindings.unit.GetDescriptor(context.Background(), &unit.GetDescriptorRequest{
+		Name: unitName,
+	})
+	if err != nil {
+		log.Fatalf("Could not get descriptor: %v", err)
+	}
+	return descriptor
+}
+
+func GetAirbases(Bindings Bindings) *world.GetAirbasesResponse {
+	airbases, err := Bindings.world.GetAirbases(context.Background(), &world.GetAirbasesRequest{})
+	if err != nil {
+		log.Fatalf("Could not get airbases: %v", err)
+	}
+	return airbases
+}
+
+func GetAbsoluteTime(Bindings Bindings) *timer.GetAbsoluteTimeResponse {
+	time, err := Bindings.timer.GetAbsoluteTime(context.Background(), &timer.GetAbsoluteTimeRequest{})
+	if err != nil {
+		log.Fatalf("Could not get absolute time: %v", err)
+	}
+	return time
+}
+func GetTime(Bindings Bindings) *timer.GetTimeResponse {
+	time, err := Bindings.timer.GetTime(context.Background(), &timer.GetTimeRequest{})
+	if err != nil {
+		log.Fatalf("Could not get time: %v", err)
+	}
+	return time
+}
+
+func GetTimeZero(Bindings Bindings) *timer.GetTimeZeroResponse {
+	time, err := Bindings.timer.GetTimeZero(context.Background(), &timer.GetTimeZeroRequest{})
+	if err != nil {
+		log.Fatalf("Could not get time zero: %v", err)
+	}
+	return time
+}
+
+func GetUnits(Bindings Bindings) *group.GetUnitsResponse {
+	units, err := Bindings.group.GetUnits(context.Background(), &group.GetUnitsRequest{})
+	if err != nil {
+		log.Fatalf("Could not get units: %v", err)
+	}
+	return units
+}
+
+func GetGroups(Bindings Bindings) *coalition.GetGroupsResponse {
+	groups, err := Bindings.coalition.GetGroups(context.Background(), &coalition.GetGroupsRequest{})
+	if err != nil {
+		log.Fatalf("Could not get groups: %v", err)
+	}
+	return groups
+}
+
+func GetStaticObjects(Bindings Bindings) *coalition.GetStaticObjectsResponse {
+	staticObjects, err := Bindings.coalition.GetStaticObjects(context.Background(), &coalition.GetStaticObjectsRequest{})
+	if err != nil {
+		log.Fatalf("Could not get static objects: %v", err)
+	}
+	return staticObjects
 }

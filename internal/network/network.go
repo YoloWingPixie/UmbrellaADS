@@ -1,6 +1,7 @@
 package network
 
 import (
+	"umbrella/internal/channels"
 	"umbrella/internal/power"
 	"umbrella/internal/radar"
 )
@@ -37,5 +38,15 @@ type CommandUnit struct {
 }
 
 func Run() {
+	channels.NetworkState <- true
+	for {
+		//check for stop signal
+		select {
+		case <-channels.NetworkStop:
+			channels.NetworkState <- false
+			return
+		default:
+		}
+	}
 
 }

@@ -1,5 +1,11 @@
 package radar
 
+import (
+	"time"
+
+	"umbrella/internal/channels"
+)
+
 type RadarUnit struct {
 }
 
@@ -43,5 +49,17 @@ func GetRadarCapabilities() {
 }
 
 func Run() {
+	channels.RadarState <- true
+	for {
+		//check for stop signal
+		select {
+		case <-channels.RadarStop:
+			channels.RadarState <- false
+			return
+		default:
+		}
+
+		time.Sleep(5 * time.Millisecond)
+	}
 
 }

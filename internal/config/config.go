@@ -45,7 +45,7 @@ func init() {
 
 }
 
-func ConfigWatcher() {
+func Watcher() {
 	for {
 
 		time.Sleep(5 * time.Second)

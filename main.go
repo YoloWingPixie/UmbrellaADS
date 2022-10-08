@@ -3,14 +3,14 @@ package main
 import (
 	"umbrella/internal/channels"
 	"umbrella/internal/config"
-	"umbrella/internal/dcsServer"
+	"umbrella/internal/dcs"
 )
 
 func main() {
 
 	//Start the watcher
-	go config.ConfigWatcher()
-	go dcsServer.ServerWatcher()
+	go config.Watcher()
+	go dcs.Watcher()
 
 	//exitProgram()
 	<-channels.ProcessStop
